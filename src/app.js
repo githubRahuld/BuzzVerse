@@ -1,16 +1,17 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import session from 'express-session';
+import session from "express-session";
 import passport from "./config/passport.js";
+import fileUpload from "express-fileupload";
 
 const app = express();
 
 app.use(
-  cors({
-    origin: process.env.CORS_ORIGIN,
-    credentials: true,
-  })
+    cors({
+        origin: process.env.CORS_ORIGIN,
+        credentials: true,
+    })
 );
 
 app.use(express.json({ limit: "16kb" })); //to allow json data
@@ -21,16 +22,26 @@ app.use(express.static("public")); // to store things locally in public folder
 
 app.use(cookieParser()); // to access cookies from users browser using server
 
+app.use(fileUpload());
+
 // Initialize sessions and passport
-app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: true }));
+app.use(
+    session({
+        secret: process.env.SESSION_SECRET,
+        resave: false,
+        saveUninitialized: true,
+    })
+);
 app.use(passport.initialize());
 app.use(passport.session());
 
 // Auth routes
 
-//import all routes 
-import userRouter from './routes/user.routes.js';
+//import all routes
+import userRouter from "./routes/user.routes.js";
+import profileRouter from "./routes/profile.routes.js";
 
-app.use('/api/v1/users',userRouter);
+app.use("/api/v1/users", userRouter);
+app.use("/api/v1/profile", profileRouter);
 
 export { app };
